@@ -1,6 +1,17 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.novoda.bintray-release'
+
+publish {
+    userOrg = 'shostko'
+    repoName = 'android'
+    groupId = 'by.shostko'
+    artifactId = 'mock-data-source'
+    publishVersion = rootProject.ext.versionName
+    desc = 'Mock implementations of androix.paging.DataSource'
+    website = 'https://github.com/shostko/mock-data-source'
+}
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion

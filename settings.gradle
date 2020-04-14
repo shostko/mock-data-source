@@ -1,2 +1,3 @@
 rootProject.name='mock-data-source'
 include ':sample'
+include ':data-source'

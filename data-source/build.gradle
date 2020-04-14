@@ -13,9 +13,8 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "androidx.paging:paging-runtime-ktx:2.1.2"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    compileOnly "androidx.paging:paging-runtime-ktx:2.1.2"
 }
 
 afterEvaluate {

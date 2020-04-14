@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package by.shostko.mock.datasource
+package by.shostko
 
 import androidx.paging.DataSource
 import androidx.paging.PageKeyedDataSource
@@ -13,9 +13,13 @@ object MockDataSource {
     @Suppress("UNCHECKED_CAST")
     fun <K, V> empty(): DataSource.Factory<K, V> = EmptyDataSource.Factory as DataSource.Factory<K, V>
 
-    fun <V> items(array: Array<V>): DataSource.Factory<Int, V> = if (array.isEmpty()) empty() else PreloadedDataSource(array).cache()
+    fun <V> items(array: Array<V>): DataSource.Factory<Int, V> = if (array.isEmpty()) empty() else PreloadedDataSource(
+        array
+    ).cache()
 
-    inline fun <reified V> items(collection: Collection<V>): DataSource.Factory<Int, V> = if (collection.isEmpty()) empty() else items(collection.toTypedArray())
+    inline fun <reified V> items(collection: Collection<V>): DataSource.Factory<Int, V> = if (collection.isEmpty()) empty() else items(
+        collection.toTypedArray()
+    )
 
     fun <V> pages(
         array: Array<List<V>?>,
@@ -29,7 +33,11 @@ object MockDataSource {
         keyOffset: Int = 0,
         initialKey: Int? = null
     ): DataSource.Factory<Int, V> =
-        if (collection.isEmpty()) empty() else pages(collection.toTypedArray(), keyOffset, initialKey)
+        if (collection.isEmpty()) empty() else pages(
+            collection.toTypedArray(),
+            keyOffset,
+            initialKey
+        )
 
     fun <K, V> pages(
         initial: () -> K,
@@ -50,7 +58,12 @@ object MockDataSource {
         pages: Map<K, List<V>>,
         prevKey: (K) -> K?,
         nextKey: (K) -> K?
-    ): DataSource.Factory<K, V> = if (pages.isEmpty()) empty() else PageGeneratorDataSource({ initial }, { pages[it] }, prevKey, nextKey).cache()
+    ): DataSource.Factory<K, V> = if (pages.isEmpty()) empty() else PageGeneratorDataSource(
+        { initial },
+        { pages[it] },
+        prevKey,
+        nextKey
+    ).cache()
 
     fun <K, V> separatedPages(
         initial: () -> K,
@@ -120,7 +133,14 @@ object MockDataSource {
         prevKey: (K) -> K?,
         nextKey: (K) -> K?
     ): DataSource.Factory<K, Any> =
-        if (pages.isEmpty()) empty() else SeparatedPageGeneratorDataSource({ initial }, { pages[it] }, { key, _ -> listOf(key) }, null, prevKey, nextKey).cache()
+        if (pages.isEmpty()) empty() else SeparatedPageGeneratorDataSource(
+            { initial },
+            { pages[it] },
+            { key, _ -> listOf(key) },
+            null,
+            prevKey,
+            nextKey
+        ).cache()
 
     fun <K> pagesWithFooters(
         initial: () -> K,
@@ -142,7 +162,14 @@ object MockDataSource {
         prevKey: (K) -> K?,
         nextKey: (K) -> K?
     ): DataSource.Factory<K, Any> =
-        if (pages.isEmpty()) empty() else SeparatedPageGeneratorDataSource({ initial }, { pages[it] }, null, { key, _ -> listOf(key) }, prevKey, nextKey).cache()
+        if (pages.isEmpty()) empty() else SeparatedPageGeneratorDataSource(
+            { initial },
+            { pages[it] },
+            null,
+            { key, _ -> listOf(key) },
+            prevKey,
+            nextKey
+        ).cache()
 }
 
 private class PageGeneratorDataSource<K, V>(

@@ -11,11 +11,12 @@ import kotlin.math.min
 object MockDataSource {
 
     @Suppress("UNCHECKED_CAST")
-    fun <K, V> empty(): DataSource.Factory<K, V> = EmptyDataSource.Factory as DataSource.Factory<K, V>
+    fun <V> empty(): DataSource.Factory<Int, V> = EmptyPositionalDataSource.Factory as DataSource.Factory<Int, V>
 
-    fun <V> items(array: Array<V>): DataSource.Factory<Int, V> = if (array.isEmpty()) empty() else PreloadedDataSource(
-        array
-    ).cache()
+    @Suppress("UNCHECKED_CAST")
+    fun <K, V> emptyContiguous(): DataSource.Factory<K, V> = EmptyPageKeyedDataSource.Factory as DataSource.Factory<K, V>
+
+    fun <V> items(array: Array<V>): DataSource.Factory<Int, V> = if (array.isEmpty()) empty() else PreloadedDataSource(array).cache()
 
     inline fun <reified V> items(collection: Collection<V>): DataSource.Factory<Int, V> = if (collection.isEmpty()) empty() else items(
         collection.toTypedArray()
@@ -58,7 +59,7 @@ object MockDataSource {
         pages: Map<K, List<V>>,
         prevKey: (K) -> K?,
         nextKey: (K) -> K?
-    ): DataSource.Factory<K, V> = if (pages.isEmpty()) empty() else PageGeneratorDataSource(
+    ): DataSource.Factory<K, V> = if (pages.isEmpty()) emptyContiguous() else PageGeneratorDataSource(
         { initial },
         { pages[it] },
         prevKey,
@@ -101,7 +102,7 @@ object MockDataSource {
         nextKey: (K) -> K?
     ): DataSource.Factory<K, V> =
         if (pages.isEmpty() && headers.isNullOrEmpty() && footers.isNullOrEmpty()) {
-            empty()
+            emptyContiguous()
         } else {
             SeparatedPageGeneratorDataSource(
                 { initial },
@@ -133,7 +134,7 @@ object MockDataSource {
         prevKey: (K) -> K?,
         nextKey: (K) -> K?
     ): DataSource.Factory<K, Any> =
-        if (pages.isEmpty()) empty() else SeparatedPageGeneratorDataSource(
+        if (pages.isEmpty()) emptyContiguous() else SeparatedPageGeneratorDataSource(
             { initial },
             { pages[it] },
             { key, _ -> listOf(key) },
@@ -162,7 +163,7 @@ object MockDataSource {
         prevKey: (K) -> K?,
         nextKey: (K) -> K?
     ): DataSource.Factory<K, Any> =
-        if (pages.isEmpty()) empty() else SeparatedPageGeneratorDataSource(
+        if (pages.isEmpty()) emptyContiguous() else SeparatedPageGeneratorDataSource(
             { initial },
             { pages[it] },
             null,
@@ -319,7 +320,7 @@ private class PreloadedDataSource<V>(private val array: Array<V>) : PositionalDa
     }
 }
 
-private object EmptyDataSource : PageKeyedDataSource<Nothing, Nothing>() {
+private object EmptyPageKeyedDataSource : PageKeyedDataSource<Nothing, Nothing>() {
 
     override fun loadInitial(params: LoadInitialParams<Nothing>, callback: LoadInitialCallback<Nothing, Nothing>) {
         callback.onResult(emptyList(), null, null)
@@ -334,7 +335,22 @@ private object EmptyDataSource : PageKeyedDataSource<Nothing, Nothing>() {
     }
 
     object Factory : DataSource.Factory<Nothing, Nothing>() {
-        override fun create(): DataSource<Nothing, Nothing> = EmptyDataSource
+        override fun create(): DataSource<Nothing, Nothing> = EmptyPageKeyedDataSource
+    }
+}
+
+private object EmptyPositionalDataSource : PositionalDataSource<Nothing>() {
+
+    object Factory : DataSource.Factory<Int, Nothing>() {
+        override fun create(): DataSource<Int, Nothing> = EmptyPositionalDataSource
+    }
+
+    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<Nothing>) {
+        callback.onResult(emptyList(), 0, 0)
+    }
+
+    override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<Nothing>) {
+        callback.onResult(emptyList())
     }
 }
 
